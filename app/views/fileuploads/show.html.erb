@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Fname:</strong>
+  <%= @fileupload.fname %>
+</p>
+
+<p>
+  <strong>Content type:</strong>
+  <%= @fileupload.content_type %>
+</p>
+
+<p>
+  <strong>Contents:</strong>
+  <%= @fileupload.contents %>
+</p>
+
+<%= link_to 'Edit', edit_fileupload_path(@fileupload) %> |
+<%= link_to 'Back', fileuploads_path %>
