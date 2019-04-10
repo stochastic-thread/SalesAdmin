@@ -5,19 +5,20 @@
 
   <div id="dvImportSegments" class="fileupload ">
       <fieldset>
-          <legend>Upload your CSV File</legend>
-              <input type="file" name="File Upload" id="txtFileUpload" accept=".csv" />
+          <legend>Upload .csv file with sales data</legend>
+              <input type="file" name="File Upload" id="csvFileUpload" accept=".csv" />
      </fieldset>
   </div>
 
 
   <div class="subcontainer"></div>
-
+  <div class="revenueLink"></div>
 </div>
 
 
 
 <script type="text/javascript">
+var csrfToken = $("meta[name='csrf-token']").attr("content");
 
 // Method that checks that the browser supports the HTML5 File API
 function compatibleBrowser() {
@@ -46,27 +47,59 @@ function upload(event){
         var headerIndex = 0
         var priceIndex = 0;
         var quantityIndex = 0;
+        var sales = []
         lines.forEach(function(line) {
           var elts = line.split(",");
-          if(row == 0) {
+          if(row === 0) { // header row
             headers = elts;
             headers.forEach(function(header){
-              if (header === "Item Price") {
-                priceIndex = headerIndex;
-              }
-              if (header === "Quantity") {
-                quantityIndex = headerIndex;
-              }
+              if (header === "Item Price") { priceIndex = headerIndex; }
+              if (header === "Quantity") { quantityIndex = headerIndex; }
               headerIndex += 1;
             })
           }
           else {
+            var obj = {};
+            var eltIndex = 0;
+            elts.forEach(function(elt){
+              if (eltIndex === priceIndex || eltIndex === quantityIndex) {
+                obj[headers[eltIndex]] = parseFloat(elt);
+              }
+              else {
+                obj[headers[eltIndex]] = elt;
+              }
+              eltIndex += 1;
+            });
+            obj['headings'] = headers;
+            console.log(obj);
+            sales.push(obj);
             totalRevenue += parseFloat(elts[priceIndex])*parseFloat(elts[quantityIndex]);
           }
           row += 1;
         });
 
-        $('.subcontainer').html('</br>$'+totalRevenue);
+        $('.subcontainer').html('</br>Total revenue in uploaded .csv: $'+totalRevenue);
+
+        sales.forEach(function(sale){
+          const url = "http://localhost:3000/ingestSale";
+          console.log(csrfToken);
+          $.ajaxSetup({
+              beforeSend: function(xhr, settings) {
+                  if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                      xhr.setRequestHeader("X-CSRF-Token", csrfToken)
+                  }
+              }
+          });
+          $.ajax({
+            url: url,
+            data: {"data": sale},
+            type: 'POST'
+          }).done(function(data){
+            console.log(`${data}`);
+          });
+        });
+
+      $('.revenueLink').html('<a href="/totalRevenue">View Total Revenue</a>')
     };
     reader.onerror = function() {
         alert('Unable to read ' + file.fileName);
@@ -76,7 +109,7 @@ function upload(event){
 
 $(document).ready(function() {
   // The event listener for the file upload
-  document.getElementById('txtFileUpload').addEventListener('change', upload, false);
+  document.getElementById('csvFileUpload').addEventListener('change', upload, false);
 });
 
 
