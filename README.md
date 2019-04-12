@@ -6,10 +6,10 @@
 4. rails db:create
 5. rails db:migrate
 6. rails s
-7. go to localhost:3000
+7. http://127.0.0.1:3000
 8. upload .csv file
 
-TO DO:
+## TO DO:
 1. multiple uploads of the same file will yield an artificially high revenue
 2. handle duplicate entries with an "ID" field, or implement record hashing to
    match against existing records
