@@ -23,7 +23,7 @@ class SalesController < ApplicationController
         end
       end
     }
-    Sale.create(sale_obj)
+    puts Sale.create(sale_obj)
   end
 
   def total_revenue

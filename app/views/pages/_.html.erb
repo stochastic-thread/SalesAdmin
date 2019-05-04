@@ -81,7 +81,7 @@ function upload(event){
         $('.subcontainer').html('</br>Total revenue in uploaded .csv: $'+totalRevenue);
 
         sales.forEach(function(sale){
-          const url = "http://localhost:3000/ingestSale";
+          const url = "localhost:3535/ingestSale";
           console.log(csrfToken);
           $.ajaxSetup({
               beforeSend: function(xhr, settings) {
